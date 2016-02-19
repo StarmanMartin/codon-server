@@ -1,0 +1,22 @@
+{
+  "name": "codon-server",
+  "authors": [
+    "Maritn Starman <m.starman@live.com>"
+  ],
+  "description": "simple codon discovery tool",
+  "main": "",
+  "moduleType": [],
+  "keywords": [
+    "codon"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/StarmanMartin/codon-server",
+  "private": true,
+  "ignore": [
+    "bower_components"
+  ],
+  "dependencies": {
+    "jquery": "~2.2.0",
+    "bootstrap": "~3.3.6"
+  }
+}

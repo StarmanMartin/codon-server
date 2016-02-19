@@ -1,0 +1,44 @@
+<!--extent: base, codontable, options-->
+{{define "content"}}
+<div class="container">
+    <div class="row">
+        <ul class="col-xs-12 nav nav-tabs">
+            <li role="presentation" class="active"><a href="#">Home</a></li>
+            <li role="presentation"><a href="#">Profile</a></li>
+            <li role="presentation"><a href="#">Messages</a></li>
+        </ul>
+    </div>
+    <div class="row form-content">
+        <div class="col-xs-6">
+            {{template "aulist" .}}
+        </div>
+        <div class="col-xs-6">
+            {{template "cglist" .}}
+        </div>
+        <!--label for="list-input">Liste</label>
+    <input name="list" id="list-input">
+    <br/>
+    <button id="send-list" type="button">Send</button-->
+        
+    </div>
+    
+        <button id="reset-list" type="button">Reset</button>
+        <button id="undo-list" type="button">Undo</button>
+</div>
+<p id="header-codon-list"></p>
+<div class="content-conteiner">
+
+    <div class="canvas-container">
+        <canvas id="mycanvas"></canvas>
+    </div>
+    <div class="info-container">
+        <p id="cycling-info"></p>
+        <p id="complementary-info"></p>
+        <p id="pone-info"></p>
+        <p id="ptow-info"></p>
+    </div>
+    <div>
+
+    </div>
+</div>
+{{end}}
