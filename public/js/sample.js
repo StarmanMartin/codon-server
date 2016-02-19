@@ -210,9 +210,9 @@ $(function () {
         }
 
         if (data.SelfComplementary) {
-            $('#complementary-info').text("self complementary")
+            $('#complementary-info').text("Self complementary")
         } else if (data.StrongNotSelfComplementary) {
-            $('#complementary-info').text("strong NOT self complementary")
+            $('#complementary-info').text("Strong NOT self complementary")
         } else {
             $('#complementary-info').text("")
         }

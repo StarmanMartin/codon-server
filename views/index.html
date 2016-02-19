@@ -1,14 +1,49 @@
 <!--extent: base, codontable, options-->
 {{define "content"}}
-<div class="container">
+
+
+<div class="container content-conteiner">
     <div class="row">
-        <ul class="col-xs-12 nav nav-tabs">
+        <div class="col-xs-2 left-window">
+            <div class="row">
+                <ul class="col-xs-12 nav-custem nav nav-tabs">
+                    <li role="presentation" class="active"><a href="#">Home</a></li>
+                    <li role="presentation"><a href="#">Profile</a></li>
+                    <li role="presentation"><a href="#">Messages</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-8 center-window">
+            <p id="header-codon-list"></p>
+            <div class="canvas-container">
+                <canvas id="mycanvas"></canvas>
+            </div>
+        </div>
+        <div class="col-xs-2 right-window">
+            <div class="info-container">
+                <p id="cycling-info"></p>
+                <p id="complementary-info"></p>
+                <p id="pone-info"></p>
+                <p id="ptow-info"></p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="container form-content">
+    <div class="row">
+        <ul class="col-xs-12 nav-custem nav nav-tabs">
             <li role="presentation" class="active"><a href="#">Home</a></li>
             <li role="presentation"><a href="#">Profile</a></li>
             <li role="presentation"><a href="#">Messages</a></li>
         </ul>
     </div>
-    <div class="row form-content">
+    <div class="row control-row">
+        <button id="reset-list" type="button">Reset</button>
+        <button id="undo-list" type="button">Undo</button>
+    </div>
+    <div class="row">
         <div class="col-xs-6">
             {{template "aulist" .}}
         </div>
@@ -19,26 +54,8 @@
     <input name="list" id="list-input">
     <br/>
     <button id="send-list" type="button">Send</button-->
-        
-    </div>
-    
-        <button id="reset-list" type="button">Reset</button>
-        <button id="undo-list" type="button">Undo</button>
-</div>
-<p id="header-codon-list"></p>
-<div class="content-conteiner">
-
-    <div class="canvas-container">
-        <canvas id="mycanvas"></canvas>
-    </div>
-    <div class="info-container">
-        <p id="cycling-info"></p>
-        <p id="complementary-info"></p>
-        <p id="pone-info"></p>
-        <p id="ptow-info"></p>
-    </div>
-    <div>
 
     </div>
 </div>
+
 {{end}}

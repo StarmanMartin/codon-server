@@ -1,0 +1,29 @@
+.content-conteiner {
+    max-height: 1000px;
+}
+
+.content-conteiner .canvas-container {
+    width: 500px;
+    height: 500px;
+    border: 1px solid black;
+    background: dimgrey;
+    margin: auto;
+}
+
+.content-conteiner .center-window {
+    color: black;
+    background-color: #888;
+    border: 1px solid #ddd;
+    min-height: 100%;
+}
+
+.content-conteiner .left-window, .content-conteiner .right-window {
+    border: 1px solid #ddd;
+    min-height: 100%;
+}
+
+.canvas-container canvas {
+    width: 100%;
+    height: 100%;
+    background: dimgrey;
+}
