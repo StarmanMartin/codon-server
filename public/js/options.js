@@ -57,6 +57,10 @@ $(function(){
         key: "arrowColor",
         id: "arrow-color"
     });
+    var $canvasContainer = $('.canvas-container')
+                    
+    optoins.width = $canvasContainer.width();
+    optoins.height = $canvasContainer.height();
     
     function reset(){
         for(var i = 0; i < valToId.length; ++i) {

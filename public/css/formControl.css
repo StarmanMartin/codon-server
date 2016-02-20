@@ -25,6 +25,16 @@
     background: whitesmoke;
     color: black;
 }
+.class-table-row td:nth-child(4n), .class-table-row td:nth-child(4n + 3){
+    background-color: rgba(200,200,200,0.2)
+}
+
+.class-table-row td:nth-child(4n + 3) {
+    border-left: 3px solid saddlebrown;
+}
+.class-table-row td:nth-child(4n) {
+    border-right: 3px solid saddlebrown;
+}
 
 .form-content td.no, .form-content td.no-all {
     background: red;
@@ -35,3 +45,4 @@
     background: green;
     color: white;
 }
+

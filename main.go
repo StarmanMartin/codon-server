@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
+
 	"github.com/gorilla/sessions"
 	"github.com/starmanmartin/simple-router"
 	"github.com/starmanmartin/simple-router/view"
@@ -23,6 +24,13 @@ func resetHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err er
 
 	return false, nil
 
+}
+
+func uploadNewListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+    session, _ := store.Get(r.Request, "session-name")
+	delete(session.Values, "clist")
+	session.Save(r.Request, w)
+	return uploadHandler(w, r)
 }
 
 func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
@@ -53,7 +61,7 @@ func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 	}
 
 	graph, err := NewCodonGraph(list)
-    
+
 	if err != nil {
 		w.Write([]byte("Error"))
 		return false, nil
@@ -62,7 +70,7 @@ func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 	session.Save(r.Request, w)
 	graph.OrderNodes()
 	graph.FindIfCircular()
-    graph.IsSelfComplementary()
+	graph.IsSelfComplementary()
 	myjson, err := json.Marshal(graph)
 
 	w.Write([]byte(myjson))
@@ -80,22 +88,22 @@ func removeHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 		w.Write([]byte("Error"))
 		return false, nil
 	}
-    
+
 	sOldList := fmt.Sprint(oldList)
 
 	if len(codon) == 3 {
 		codon = strings.Replace(sOldList, codon, "", -1)
-	    codon = strings.Trim(codon, " ")
-        codon = strings.Replace(codon, "  ", " ", -1)
+		codon = strings.Trim(codon, " ")
+		codon = strings.Replace(codon, "  ", " ", -1)
 		list = strings.Split(codon, " ")
 		session.Values["clist"] = codon
 	} else {
-        w.Write([]byte("Error"))
+		w.Write([]byte("Error"))
 		return false, nil
-    }
+	}
 
 	graph, err := NewCodonGraph(list)
-    
+
 	if err != nil {
 		w.Write([]byte("Error"))
 		return false, nil
@@ -104,7 +112,7 @@ func removeHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 	session.Save(r.Request, w)
 	graph.OrderNodes()
 	graph.FindIfCircular()
-    graph.IsSelfComplementary()
+	graph.IsSelfComplementary()
 	myjson, err := json.Marshal(graph)
 
 	w.Write([]byte(myjson))
@@ -130,8 +138,9 @@ func iniWebRouter() {
 	app.Public("/public")
 	app.Get("/", indexHandler)
 	app.Post("/newgraph", uploadHandler)
-    app.Post("/removecodon", removeHandler)
+	app.Post("/removecodon", removeHandler)
 	app.Post("/reset", resetHandler)
+	app.Post("/newlist", uploadNewListHandler)
 
 	router.ErrorHandler = errorFunc
 	router.NotFoundHandler = notFound

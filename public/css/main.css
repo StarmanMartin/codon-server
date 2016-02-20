@@ -24,6 +24,16 @@ body, html {
     float: left;
 }
 
+.option-conteiner hr {
+    margin: 5px 0px;
+}
+
+.control-label {
+    text-align: right;
+    height: 27px;
+    line-height: 36px;
+}
+
 footer {
     width: 100%;
     text-align: center;

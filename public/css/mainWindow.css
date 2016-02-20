@@ -3,8 +3,8 @@
 }
 
 .content-conteiner .canvas-container {
-    width: 500px;
-    height: 500px;
+    width: 200px;
+    height: 350px;
     border: 1px solid black;
     background: dimgrey;
     margin: auto;
@@ -14,7 +14,7 @@
     color: black;
     background-color: #888;
     border: 1px solid #ddd;
-    min-height: 100%;
+    min-height: 300px;
 }
 
 .content-conteiner .left-window, .content-conteiner .right-window {

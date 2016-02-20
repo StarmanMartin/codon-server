@@ -23,3 +23,23 @@
     height: 15px;
     line-height: 15px;
 }
+
+.sw-container {
+    overflow-x: hidden; max-height: 100%; overflow-y: hidden;
+}
+
+.sw-scroll-container {
+    height: 100%
+}
+
+.sw-scroll-container .sw-box {
+    position: absolute; bottom: 0px; overflow: auto; top: 15px; width: 100%;
+}
+
+.sw-box {
+    display: none;
+}
+
+.sw-box.active {
+    display: block;
+}

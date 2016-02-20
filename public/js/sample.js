@@ -85,7 +85,7 @@ $(function () {
         var fromy = nodeA.center.y;
         var tox = nodeB.center.x;
         var toy = nodeB.center.y;
-        var headlen = (optoins.radius*6)/(17);   // length of head in pixels
+        var headlen = (optoins.radius * 6) / (17);   // length of head in pixels
         var angle = Math.atan2(toy - fromy, tox - fromx);
 
         fromx += (5 + optoins.radius) * Math.cos(angle);
@@ -98,8 +98,8 @@ $(function () {
         ctx.strokeStyle = optoins.arrowColor;
         ctx.moveTo(fromx, fromy);
         ctx.lineTo(tox, toy);
-        ctx.lineTo(tox - headlen * Math.cos(angle - (Math.PI * optoins.radius)/ (17*10)), toy - headlen * Math.sin(angle - (Math.PI * optoins.radius)/ (6*17)));
-        ctx.lineTo(tox - headlen * Math.cos(angle + (Math.PI * optoins.radius)/ (17*10)), toy - headlen * Math.sin(angle + (Math.PI * optoins.radius)/ (6*17)));
+        ctx.lineTo(tox - headlen * Math.cos(angle - (Math.PI * optoins.radius) / (17 * 10)), toy - headlen * Math.sin(angle - (Math.PI * optoins.radius) / (6 * 17)));
+        ctx.lineTo(tox - headlen * Math.cos(angle + (Math.PI * optoins.radius) / (17 * 10)), toy - headlen * Math.sin(angle + (Math.PI * optoins.radius) / (6 * 17)));
         ctx.lineTo(tox, toy);
         ctx.stroke();
         ctx.restore();
@@ -168,6 +168,10 @@ $(function () {
         sendListUpdate("/removecodon", val, cb)
     }
 
+    function sendNewList(val, cb) {
+        sendListUpdate("/newlist", val, cb)
+    }
+
     function sendListUpdate(path, val, cb) {
         $.post(path, {
             "list": val
@@ -183,10 +187,13 @@ $(function () {
                 setInfo(data)
                 redraw = function () {
                     resetGraph();
-                    $('.canvas-container').width(optoins.width);
-                    $('.canvas-container').height(optoins.height);
+                    var $canvasContainer = $('.canvas-container')
+                    $canvasContainer.width(optoins.width);
+                    $canvasContainer.height(optoins.height);
                     $('#mycanvas').attr('height', optoins.height);
                     $('#mycanvas').attr('width', optoins.width);
+                    var centerHeight = $('.center-window').height();
+                    $('.content-conteiner').height(centerHeight);
                     var nodes = parseObject(data, optoins.width, optoins.height);
                     drawGraph(nodes, data);
                 };
@@ -198,21 +205,21 @@ $(function () {
 
     sendNewCodon('', function (data) {
         for (var i = 0; i < data.List.length; ++i) {
-            codonClick($('.' + data.List[i]));
+            codonClick($('.' + data.List[i]), true);
         }
     });
 
     function setInfo(data) {
         if (data.CyclingIndex === 0) {
-            $('#cycling-info').text("Cycling Code")
+            $('#cycling-info').text("Cycling-Code")
         } else {
-            $('#cycling-info').text("Not Cycling Code (" + data.CyclingIndex + ")")
+            $('#cycling-info').text("Not cycling-code (" + data.CyclingIndex + ")")
         }
 
         if (data.SelfComplementary) {
-            $('#complementary-info').text("Self complementary")
+            $('#complementary-info').text("Self-complementary")
         } else if (data.StrongNotSelfComplementary) {
-            $('#complementary-info').text("Strong NOT self complementary")
+            $('#complementary-info').text("Strong not self-complementary")
         } else {
             $('#complementary-info').text("")
         }
@@ -230,22 +237,30 @@ $(function () {
         }
     }
 
-    function codonClick($this) {
+    function codonClick($this, isLocal) {
         $this.addClass('selected')
         var val = $this.text();
         history.push(val);
-        var classText = $this.attr('class')
-        $this.attr('class', 'temp-selected');
-        var classes = classText.split(' ');
+        var classText = [];
+        $this.each(function(){
+            classText.push($(this).attr('class'))
+        }); 
+        
+        var classes = classText[0].split(' ');
         for (var i = 0; i < classes.length; ++i) {
             if (classes[i].indexOf('class') === 0) {
                 $('.' + classes[i] + ':not(no)').addClass('no')
             }
         }
-
-        $this.attr('class', classText);
-
-        sendNewCodon(val);
+           var classIndex = 0;
+        $this.each(function(){
+            $(this).attr('class', classText[classIndex++]);
+        });
+        
+        $('.' + val).addClass('selected').removeClass('no');
+        if (!isLocal) {
+            sendNewCodon(val);
+        }
     }
 
     $('.codon-table td').click(function () {
@@ -280,7 +295,7 @@ $(function () {
         sendRemoveCodon(history.pop(), function (data) {
             resteTable();
             for (var i = 0; i < data.List.length; ++i) {
-                codonClick($('.' + data.List[i]));
+                codonClick($('.' + data.List[i]), true);
             }
         });
     }
@@ -292,5 +307,19 @@ $(function () {
         $('.codon-table td.no').removeClass('no')
         $('.codon-table td.selected').removeClass('selected')
     }
+
+    $('#send-list').click(function () {
+        var value = $('#codonList').val().toUpperCase();
+        $('#header-codon-list').text("");
+        resetGraph();
+        resteTable();
+        $('.info-container p').text("");
+        sendNewList(value, function (data) {
+            for (var i = 0; i < data.List.length; ++i) {
+                codonClick($('.' + data.List[i]), true);
+            }
+        });
+
+    });
 
 });

@@ -1,16 +1,20 @@
 <!--extent: base, codontable, options-->
 {{define "content"}}
 
-
 <div class="container content-conteiner">
-    <div class="row">
+    <div class="row sw-scroll-container sw-container">
         <div class="col-xs-2 left-window">
             <div class="row">
                 <ul class="col-xs-12 nav-custem nav nav-tabs">
-                    <li role="presentation" class="active"><a href="#">Home</a></li>
-                    <li role="presentation"><a href="#">Profile</a></li>
-                    <li role="presentation"><a href="#">Messages</a></li>
+                    <li role="presentation" class="active"><a href="javascript:void(0)" data-linktype="tool">Tool</a></li>
+                    <li role="presentation"><a href="javascript:void(0)" data-linktype="view">View</a></li>
                 </ul>
+            </div>
+            <div class="row sw-box sw-tool">
+                <h3 class="col-xs-12">Tool</h3>
+            </div>
+            <div class="row sw-box sw-view">
+                <h3 class="col-xs-12">View</h3> {{template "options" .}}
             </div>
         </div>
         <div class="col-xs-8 center-window">
@@ -21,6 +25,7 @@
         </div>
         <div class="col-xs-2 right-window">
             <div class="info-container">
+                <h3>Info:</h3>
                 <p id="cycling-info"></p>
                 <p id="complementary-info"></p>
                 <p id="pone-info"></p>
@@ -31,30 +36,41 @@
     </div>
 </div>
 
-<div class="container form-content">
+<div class="container form-content sw-container">
     <div class="row">
         <ul class="col-xs-12 nav-custem nav nav-tabs">
-            <li role="presentation" class="active"><a href="#">Home</a></li>
-            <li role="presentation"><a href="#">Profile</a></li>
-            <li role="presentation"><a href="#">Messages</a></li>
+            <li role="presentation" class="active"><a href="javascript:void(0)" data-linktype="classList">Class</a></li>
+            <li role="presentation"><a href="javascript:void(0)" data-linktype="augc">Table AU/TC</a></li>
+            <li role="presentation"><a href="javascript:void(0)" data-linktype="textinput">Text</a></li>
         </ul>
     </div>
     <div class="row control-row">
         <button id="reset-list" type="button">Reset</button>
         <button id="undo-list" type="button">Undo</button>
     </div>
-    <div class="row">
+    <div class="row sw-box sw-augc">
         <div class="col-xs-6">
             {{template "aulist" .}}
         </div>
         <div class="col-xs-6">
             {{template "cglist" .}}
         </div>
-        <!--label for="list-input">Liste</label>
-    <input name="list" id="list-input">
-    <br/>
-    <button id="send-list" type="button">Send</button-->
-
+    </div>
+    <div class="row sw-box sw-classList">
+        <div class="col-xs-12 codon-table">
+            {{template "classtable" .}}
+        </div>
+    </div>
+    <div class="sw-box sw-textinput">
+        <div class="row form-group">
+            <label for="codonList" class="col-sm-2 control-label">Codon-List:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="codonList" name="codonList" placeholder="ACG UTA ...">
+                <br/>
+                <button id="send-list" class="btn btn-info" >Send</button>
+            </div>
+        </div>
+        
     </div>
 </div>
 
