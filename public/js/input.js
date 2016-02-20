@@ -1,7 +1,4 @@
-/* global optoins */
-/* global $ */
-var redraw = function () { };
-
+/* global GLOBAL */
 $(function () {
     var history = [];
 
@@ -14,7 +11,7 @@ $(function () {
             DinucleotideNodes: []
         };
 
-        h -= 2 * (optoins.radius + 4)
+        h -= 2 * (GLOBAL.options.radius + 4)
 
         for (var i = 0; i < BASESES.length; ++i) {
             if (data.TetranucleotideNodes[i * 2].length +
@@ -27,7 +24,7 @@ $(function () {
         }
 
         var height = h / 4;
-        var startHeight = (h - (height * heightIdx)) / 2 + optoins.radius + 4
+        var startHeight = (h - (height * heightIdx)) / 2 + GLOBAL.options.radius + 4
 
         for (var l = 0, i = 0; l < BASESES.length; ++l) {
             if (isBaseActive[l]) {
@@ -44,19 +41,16 @@ $(function () {
             seperators[1] = seperators[2] = data.DinucleotideNodes.length / 2
         }
 
-
-
-
         for (var i = 1; i < seperators.length; ++i) {
             var tLength = seperators[i - 1] + seperators[i];
             if (seperators[i] > 4) {
                 height = h / (seperators[i] - 1);
-                startHeight = (h - (height * (seperators[i] - 1))) / 2 + optoins.radius + 4
+                startHeight = (h - (height * (seperators[i] - 1))) / 2 + GLOBAL.options.radius + 4
             } else {
                 height = h / seperators[i];
-                startHeight = (h - (height * (seperators[i] - 1))) / 2 + optoins.radius + 4
+                startHeight = (h - (height * (seperators[i] - 1))) / 2 + GLOBAL.options.radius + 4
             }
-            var left = optoins.radius + 4;
+            var left = GLOBAL.options.radius + 4;
             if (i == 2) {
                 left = w - left
             }
@@ -78,86 +72,6 @@ $(function () {
                 x: x
             }
         }
-    }
-
-    function drawArrow(ctx, nodeA, nodeB) {
-        var fromx = nodeA.center.x;
-        var fromy = nodeA.center.y;
-        var tox = nodeB.center.x;
-        var toy = nodeB.center.y;
-        var headlen = (optoins.radius * 6) / (17);   // length of head in pixels
-        var angle = Math.atan2(toy - fromy, tox - fromx);
-
-        fromx += (5 + optoins.radius) * Math.cos(angle);
-        fromy += (5 + optoins.radius) * Math.sin(angle);
-        tox -= (5 + optoins.radius) * Math.cos(angle); //newPoints[2]
-        toy -= (5 + optoins.radius) * Math.sin(angle);
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.strokeStyle = optoins.arrowColor;
-        ctx.moveTo(fromx, fromy);
-        ctx.lineTo(tox, toy);
-        ctx.lineTo(tox - headlen * Math.cos(angle - (Math.PI * optoins.radius) / (17 * 10)), toy - headlen * Math.sin(angle - (Math.PI * optoins.radius) / (6 * 17)));
-        ctx.lineTo(tox - headlen * Math.cos(angle + (Math.PI * optoins.radius) / (17 * 10)), toy - headlen * Math.sin(angle + (Math.PI * optoins.radius) / (6 * 17)));
-        ctx.lineTo(tox, toy);
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    function drawGraph(nodeObj, data) {
-        var c = document.getElementById("mycanvas");
-        var ctx = c.getContext("2d");
-        var width = optoins.width;
-        var height = optoins.height;
-        ctx.fillStyle = optoins.backColor;
-        ctx.fillRect(0, 0, width, height)
-        ctx.font = optoins.fontSize + "px Arial";
-        var nodes = nodeObj.DinucleotideNodes.concat(nodeObj.TetranucleotideNodes)
-
-        for (var i = 0; i < nodes.length; ++i) {
-            ctx.fillStyle = optoins.nodeColor;
-            ctx.strokeStyle = optoins.nodeBorderColor
-            ctx.beginPath();
-            ctx.arc(nodes[i].center.x, nodes[i].center.y, optoins.radius, 0, 2 * Math.PI);
-            ctx.stroke();
-            ctx.arc(nodes[i].center.x, nodes[i].center.y, optoins.radius, 0, 2 * Math.PI);
-            ctx.fill();
-
-            ctx.fillStyle = optoins.fontColor;
-
-            var pos = ctx.measureText(nodes[i].text).width / 2;
-            ctx.fillText(nodes[i].text, nodes[i].center.x - pos, ctx.fillText(nodes[i].text, nodes[i].center.x - pos, nodes[i].center.y + optoins.fontSize * 0.35));
-        }
-
-        var indexTetranucleotide = 0;
-        for (var right = 0; right < 7; right += 2) {
-            if (data.TetranucleotideNodes[right].length > 0 ||
-                data.TetranucleotideNodes[right + 1].length > 0) {
-                for (var i = 0; i < data.TetranucleotideNodes[right].length; ++i) {
-                    var index = data.TetranucleotideNodes[right][i];
-                    drawArrow(ctx, nodeObj.DinucleotideNodes[index],
-                        nodeObj.TetranucleotideNodes[indexTetranucleotide]);
-                }
-
-                for (var i = 0; i < data.TetranucleotideNodes[right + 1].length; ++i) {
-                    index = data.TetranucleotideNodes[right + 1][i];
-                    drawArrow(ctx, nodeObj.TetranucleotideNodes[indexTetranucleotide],
-                        nodeObj.DinucleotideNodes[index]);
-                }
-
-                ++indexTetranucleotide;
-            }
-        }
-    }
-
-    function resetGraph() {
-        var c = document.getElementById("mycanvas");
-        var ctx = c.getContext("2d");
-        var width = c.width;
-        var height = c.height;
-
-        ctx.clearRect(0, 0, width, height);
     }
 
     function sendNewCodon(val, cb) {
@@ -185,20 +99,20 @@ $(function () {
 
                 $('#header-codon-list').text(data.List.join(', '));
                 setInfo(data)
-                redraw = function () {
-                    resetGraph();
+                GLOBAL.redraw = function () {
+                    GLOBAL.resetGraph();
                     var $canvasContainer = $('.canvas-container')
-                    $canvasContainer.width(optoins.width);
-                    $canvasContainer.height(optoins.height);
-                    $('#mycanvas').attr('height', optoins.height);
-                    $('#mycanvas').attr('width', optoins.width);
+                    $canvasContainer.width(GLOBAL.options.width);
+                    $canvasContainer.height(GLOBAL.options.height);
+                    $('#mycanvas').attr('height', GLOBAL.options.height);
+                    $('#mycanvas').attr('width', GLOBAL.options.width);
                     var centerHeight = $('.center-window').height();
                     $('.content-conteiner').height(centerHeight);
-                    var nodes = parseObject(data, optoins.width, optoins.height);
-                    drawGraph(nodes, data);
+                    var nodes = parseObject(data, GLOBAL.options.width, GLOBAL.options.height);
+                    GLOBAL.drawGraph(nodes, data);
                 };
 
-                redraw();
+                GLOBAL.redraw();
             }
         });
     }
@@ -242,21 +156,21 @@ $(function () {
         var val = $this.text();
         history.push(val);
         var classText = [];
-        $this.each(function(){
+        $this.each(function () {
             classText.push($(this).attr('class'))
-        }); 
-        
+        });
+
         var classes = classText[0].split(' ');
         for (var i = 0; i < classes.length; ++i) {
             if (classes[i].indexOf('class') === 0) {
                 $('.' + classes[i] + ':not(no)').addClass('no')
             }
         }
-           var classIndex = 0;
-        $this.each(function(){
+        var classIndex = 0;
+        $this.each(function () {
             $(this).attr('class', classText[classIndex++]);
         });
-        
+
         $('.' + val).addClass('selected').removeClass('no');
         if (!isLocal) {
             sendNewCodon(val);
@@ -277,7 +191,7 @@ $(function () {
         $.post("/reset", {}, function (data) {
             if (data !== 'Error') {
                 $('#header-codon-list').text("");
-                resetGraph();
+                GLOBAL.resetGraph();
                 resteTable();
                 $('.info-container p').text("");
             }
@@ -311,7 +225,7 @@ $(function () {
     $('#send-list').click(function () {
         var value = $('#codonList').val().toUpperCase();
         $('#header-codon-list').text("");
-        resetGraph();
+        GLOBAL.resetGraph();
         resteTable();
         $('.info-container p').text("");
         sendNewList(value, function (data) {
@@ -321,5 +235,4 @@ $(function () {
         });
 
     });
-
 });

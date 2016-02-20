@@ -17,14 +17,9 @@
 }
 
 .form-content .sds, .form-content .ddd {
-    background: #1895dd;
-    color: whitesmoke;
+    background: rgba(200,200,200,0.2);
 }
 
-.form-content .sdd {
-    background: whitesmoke;
-    color: black;
-}
 .class-table-row td:nth-child(4n), .class-table-row td:nth-child(4n + 3){
     background-color: rgba(200,200,200,0.2)
 }
