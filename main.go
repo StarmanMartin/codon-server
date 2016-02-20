@@ -21,7 +21,6 @@ func resetHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err er
 	delete(session.Values, "clist")
 	session.Save(r.Request, w)
 	w.Write([]byte("sucess"))
-
 	return false, nil
 
 }
@@ -30,7 +29,7 @@ func uploadNewListHandler(w http.ResponseWriter, r *router.Request) (isNext bool
     session, _ := store.Get(r.Request, "session-name")
 	delete(session.Values, "clist")
 	session.Save(r.Request, w)
-	return uploadHandler(w, r)
+	return true, nil
 }
 
 func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
@@ -140,7 +139,7 @@ func iniWebRouter() {
 	app.Post("/newgraph", uploadHandler)
 	app.Post("/removecodon", removeHandler)
 	app.Post("/reset", resetHandler)
-	app.Post("/newlist", uploadNewListHandler)
+	app.Post("/newlist", uploadNewListHandler, uploadHandler)
 
 	router.ErrorHandler = errorFunc
 	router.NotFoundHandler = notFound
