@@ -25,8 +25,33 @@ func resetHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err er
 
 }
 
+func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+	session, _ := store.Get(r.Request, "session-name")
+	rule := r.Form.Get("rule")
+	oldList, has := session.Values["clist"]
+	if !has {
+		w.Write([]byte("Error"))
+		return false, nil
+	}
+
+	sOldList := fmt.Sprint(oldList)
+	sOldList = strings.Trim(sOldList, " ")
+	list := strings.Split(sOldList, " ")
+
+	list, err = PermutateCodons(list, rule)
+	if err != nil {
+		w.Write([]byte("Error"))
+		return false, nil
+	}
+
+    session.Values["clist"] = strings.Join(list, " ")   
+	session.Save(r.Request, w)
+    r.Redirect(w, "/")
+	return
+}
+
 func uploadNewListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
-    session, _ := store.Get(r.Request, "session-name")
+	session, _ := store.Get(r.Request, "session-name")
 	delete(session.Values, "clist")
 	session.Save(r.Request, w)
 	return true, nil
@@ -140,6 +165,7 @@ func iniWebRouter() {
 	app.Post("/removecodon", removeHandler)
 	app.Post("/reset", resetHandler)
 	app.Post("/newlist", uploadNewListHandler, uploadHandler)
+	app.Post("/permutate", permutateListHandler)
 
 	router.ErrorHandler = errorFunc
 	router.NotFoundHandler = notFound
