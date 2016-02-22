@@ -1,10 +1,11 @@
 .content-conteiner {
     max-height: 1000px;
+    width: 100%;
 }
 
 .content-conteiner .canvas-container {
-    width: 200px;
-    height: 350px;
+    width: 240px;
+    height: 420px;
     border: 1px solid black;
     background: dimgrey;
     margin: auto;

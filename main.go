@@ -26,6 +26,7 @@ func resetHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err er
 }
 
 func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+	r.ParseForm()
 	session, _ := store.Get(r.Request, "session-name")
 	rule := r.Form.Get("rule")
 	oldList, has := session.Values["clist"]
@@ -44,10 +45,10 @@ func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool
 		return false, nil
 	}
 
-    session.Values["clist"] = strings.Join(list, " ")   
+	session.Values["clist"] = strings.Join(list, " ")
 	session.Save(r.Request, w)
-    r.Redirect(w, "/")
-	return
+
+	return true, nil
 }
 
 func uploadNewListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
@@ -64,6 +65,10 @@ func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 	oldList, has := session.Values["clist"]
 	var list []string
 	if !has {
+		if len(codon) <= 2 {
+			w.Write([]byte("Empty"))
+			return false, nil
+		}
 		list = strings.Split(codon, " ")
 		session.Values["clist"] = codon
 	} else {
@@ -165,7 +170,7 @@ func iniWebRouter() {
 	app.Post("/removecodon", removeHandler)
 	app.Post("/reset", resetHandler)
 	app.Post("/newlist", uploadNewListHandler, uploadHandler)
-	app.Post("/permutate", permutateListHandler)
+	app.Post("/permutate", permutateListHandler, uploadHandler)
 
 	router.ErrorHandler = errorFunc
 	router.NotFoundHandler = notFound

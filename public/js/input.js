@@ -75,22 +75,50 @@ $(function () {
     }
 
     function sendNewCodon(val, cb) {
-        sendListUpdate("/newgraph", val, cb)
+        sendListUpdate("/newgraph", {
+            "list": val
+        }, cb)
     }
 
     function sendRemoveCodon(val, cb) {
-        sendListUpdate("/removecodon", val, cb)
+        sendListUpdate("/removecodon", {
+            "list": val
+        }, cb)
     }
 
     function sendNewList(val, cb) {
-        sendListUpdate("/newlist", val, cb)
+        sendListUpdate("/newlist", {
+            "list": val
+        }, cb)
+    }
+
+    function sendPermutation(val, cb) {
+        sendListUpdate("/permutate", {
+            "rule": val
+        }, cb)
     }
 
     function sendListUpdate(path, val, cb) {
-        $.post(path, {
-            "list": val
-        }, function (data) {
-            if (data !== 'Error') {
+        $.post(path, val, function (data) {
+            if (data === 'Error') {
+                return;
+            }
+           
+            if(data === 'Empty') {
+                GLOBAL.redraw = function () {
+                    GLOBAL.resetGraph();
+                    var $canvasContainer = $('.canvas-container')
+                    $canvasContainer.width(GLOBAL.options.width);
+                    $canvasContainer.height(GLOBAL.options.height);
+                    $('#mycanvas').attr('height', GLOBAL.options.height);
+                    $('#mycanvas').attr('width', GLOBAL.options.width);
+                    var centerHeight = $('.center-window').height();
+                    $('.content-conteiner').height(centerHeight);
+                };
+
+                GLOBAL.redraw();
+                
+            } else {
                 console.log(data);
                 data = JSON.parse(data);
                 if (cb) {
@@ -185,6 +213,18 @@ $(function () {
         } else {
             codonClick($this);
         }
+    });
+
+    $('#button-permutation-rule').click(function () {
+        $('#header-codon-list').text("");
+        $('.info-container p').text("");
+        GLOBAL.resetGraph();
+        resteTable();
+        sendPermutation($('#select-permutation-rule').val(), function (data) {
+            for (var i = 0; i < data.List.length; ++i) {
+                codonClick($('.' + data.List[i]), true);
+            }
+        })
     });
 
     function totalReset() {
