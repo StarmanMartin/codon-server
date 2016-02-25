@@ -24,7 +24,8 @@ $(function () {
         }
 
         var height = h / 4;
-        var startHeight = (h - (height * heightIdx)) / 2 + GLOBAL.options.radius + 4
+        var minHeight = (h - (height * heightIdx)) / 2 + GLOBAL.options.radius + 4,
+            startHeight = minHeight;
 
         for (var l = 0, i = 0; l < BASESES.length; ++l) {
             if (isBaseActive[l]) {
@@ -55,13 +56,15 @@ $(function () {
                 left = w - left
             }
 
+            minHeight = Math.min(minHeight, startHeight);
+
             for (var l = seperators[i - 1], s = 0; l < tLength; ++l) {
                 nodes.DinucleotideNodes.push(nodeFactory(data.DinucleotideNodes[l], left, height * (s) + startHeight));
                 ++s;
             }
         }
 
-        return nodes;
+        return [nodes, minHeight];
     }
 
     function nodeFactory(text, x, y) {
@@ -103,45 +106,53 @@ $(function () {
             if (data === 'Error') {
                 return;
             }
-           
-            if(data === 'Empty') {
-                GLOBAL.redraw = function () {
-                    GLOBAL.resetGraph();
-                    var $canvasContainer = $('.canvas-container')
-                    $canvasContainer.width(GLOBAL.options.width);
-                    $canvasContainer.height(GLOBAL.options.height);
-                    $('#mycanvas').attr('height', GLOBAL.options.height);
-                    $('#mycanvas').attr('width', GLOBAL.options.width);
-                    var centerHeight = $('.center-window').height();
-                    $('.content-conteiner').height(centerHeight);
-                };
 
-                GLOBAL.redraw();
-                
+            var resizeHeight = 0,
+                nodeInfo, resetData;
+            if (data === 'Empty') {
+                nodeInfo = false;
+
+
             } else {
-                console.log(data);
+                nodeInfo = true;
                 data = JSON.parse(data);
-                if (cb) {
-                    cb(data)
+                console.log(data);
+                resetData = function () {
+                    nodeInfo = parseObject(data, GLOBAL.options.width, GLOBAL.options.height);
+                    resizeHeight = Math.max((nodeInfo[1] - 4 - GLOBAL.options.radius) * 2, 0)
+                    if (cb) {
+                        cb(data)
+                    }
+
+                    $('#header-codon-list').text(data.List.join(', '));
+                    setInfo(data)
                 }
-
-                $('#header-codon-list').text(data.List.join(', '));
-                setInfo(data)
-                GLOBAL.redraw = function () {
-                    GLOBAL.resetGraph();
-                    var $canvasContainer = $('.canvas-container')
-                    $canvasContainer.width(GLOBAL.options.width);
-                    $canvasContainer.height(GLOBAL.options.height);
-                    $('#mycanvas').attr('height', GLOBAL.options.height);
-                    $('#mycanvas').attr('width', GLOBAL.options.width);
-                    var centerHeight = $('.center-window').height();
-                    $('.content-conteiner').height(centerHeight);
-                    var nodes = parseObject(data, GLOBAL.options.width, GLOBAL.options.height);
-                    GLOBAL.drawGraph(nodes, data);
-                };
-
-                GLOBAL.redraw();
             }
+
+            GLOBAL.redraw = function () {
+                if (nodeInfo) {
+                    resetData()
+                }
+                
+                GLOBAL.resetGraph();
+                var $canvasContainer = $('.canvas-container')
+                $canvasContainer.width(GLOBAL.options.width);
+                $canvasContainer.height(GLOBAL.options.height);
+                var $canvas = $('#mycanvas');
+                $canvas.attr('height', GLOBAL.options.height - resizeHeight);
+                $canvas.height(GLOBAL.options.height - resizeHeight);
+                $canvas.css('marginTop', Math.floor(resizeHeight / 2) + 'px');
+                $canvas.attr('width', GLOBAL.options.width);
+                var centerHeight = $('.center-window').height();
+                $('.content-conteiner').height(centerHeight);
+
+                if (nodeInfo) {
+                    GLOBAL.drawGraph(nodeInfo, data);
+                }
+            };
+
+            GLOBAL.redraw();
+
         });
     }
 

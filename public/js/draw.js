@@ -26,7 +26,10 @@ $(function () {
         ctx.restore();
     }
 
-    GLOBAL.drawGraph = function drawGraph(nodeObj, data) {
+    GLOBAL.drawGraph = function drawGraph(nodeInfo, data) {
+        
+        var marginTop = Math.max(nodeInfo[1] - 4 - GLOBAL.options.radius, 0);
+        var nodeObj = nodeInfo[0];
         var c = document.getElementById("mycanvas");
         var ctx = c.getContext("2d");
         var width = GLOBAL.options.width;
@@ -37,6 +40,7 @@ $(function () {
         var nodes = nodeObj.DinucleotideNodes.concat(nodeObj.TetranucleotideNodes)
 
         for (var i = 0; i < nodes.length; ++i) {
+            nodes[i].center.y -= marginTop
             ctx.fillStyle = GLOBAL.options.nodeColor;
             ctx.strokeStyle = GLOBAL.options.nodeBorderColor
             ctx.beginPath();
