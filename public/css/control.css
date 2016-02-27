@@ -25,7 +25,9 @@
 }
 
 .sw-container {
-    overflow-x: hidden; max-height: 100%; overflow-y: hidden;
+    overflow-x: hidden;
+    max-height: 100%;
+    overflow-y: hidden;
 }
 
 .sw-scroll-container {
@@ -33,7 +35,23 @@
 }
 
 .sw-scroll-container .sw-box {
-    position: absolute; bottom: 0px; overflow: auto; top: 15px; width: 100%;
+    position: absolute;
+    bottom: 0px;
+    overflow: auto;
+    top: 15px;
+    right: 15px;
+    left: 15px;
+}
+
+.sw-scroll-container .sw-box.sw-box-scroll {
+    
+    right: 0px;
+}
+
+.sw-scroll-container .sw-box .row {
+    margin: 0;
+    margin-bottom: 4px; 
+    width: 100%;
 }
 
 .sw-box {

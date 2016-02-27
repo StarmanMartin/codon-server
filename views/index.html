@@ -10,20 +10,25 @@
                     <li role="presentation"><a href="javascript:void(0)" data-linktype="view">View</a></li>
                 </ul>
             </div>
-            <div class="row sw-box sw-tool">
-                <h3 class="col-xs-12">Tool</h3>
-                <h4 class="col-xs-12">Permutation</h4>
-                <select id="select-permutation-rule" class="col-xs-8" style="padding-left: 0px;">
-                    <option>A&lt;-&gt;U</option>
-                    <option>C&lt;-&gt;G</option>
-                    <option>A&lt;-&gt;U,C&lt;-&gt;G</option>
-                    <option>A&lt;-&gt;G,U&lt;-&gt;C</option>
-                    <option>A&lt;-&gt;C,U&lt;-&gt;G</option>
-                </select>
-                <button id="button-permutation-rule" type="button" class="btn btn-info col-xs-4">Send</button>
+            <div class="sw-box sw-tool">
+                <h3 class="">Tool</h3>
+                <h4 class="">Permutation</h4>
+                <div class="row">
+                    <select id="select-permutation-rule" class="col-xs-8" style="padding-left: 0px;">
+                        <option>A&lt;-&gt;U</option>
+                        <option>C&lt;-&gt;G</option>
+                        <option>A&lt;-&gt;U,C&lt;-&gt;G</option>
+                        <option>A&lt;-&gt;G,U&lt;-&gt;C</option>
+                        <option>A&lt;-&gt;C,U&lt;-&gt;G</option>
+                    </select>
+                    <button id="button-permutation-rule" type="button" class="btn col-xs-4">Send</button>
+                </div>
+                <div class="row">
+                    <button id="button-shift" type="button" class="btn col-xs-12">Shift left</button>
+                </div>
             </div>
-            <div class="row sw-box sw-view">
-                <h3 class="col-xs-12">View</h3> {{template "options" .}}
+            <div class="sw-box sw-box-scroll sw-view">
+                <h3 class="">View</h3> {{template "options" .}}
             </div>
         </div>
         <div class="col-xs-8 center-window">
@@ -36,9 +41,12 @@
             <div class="info-container">
                 <h3>Info:</h3>
                 <p id="cycling-info"></p>
+                <p id="path-info"></p>
                 <p id="complementary-info"></p>
                 <p id="pone-info"></p>
                 <p id="ptow-info"></p>
+                <p id="code-Length"></p>
+                <p id="node-Length"></p>
             </div>
         </div>
 

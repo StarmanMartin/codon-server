@@ -171,7 +171,8 @@ func iniWebRouter() {
 	app.Post("/reset", resetHandler)
 	app.Post("/newlist", uploadNewListHandler, uploadHandler)
 	app.Post("/permutate", permutateListHandler, uploadHandler)
-
+    initRouter()
+    app.Post("/check/*", uploadHandler)
 	router.ErrorHandler = errorFunc
 	router.NotFoundHandler = notFound
 

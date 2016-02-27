@@ -101,9 +101,16 @@ $(function () {
         }, cb)
     }
 
+    function sendShiftLeft(cb) {
+        sendListUpdate("/check/shift", {}, cb)
+    }
+
     function sendListUpdate(path, val, cb) {
         $.post(path, val, function (data) {
             if (data === 'Error') {
+                if (cb) {
+                    cb(data)
+                }
                 return;
             }
 
@@ -133,7 +140,7 @@ $(function () {
                 if (nodeInfo) {
                     resetData()
                 }
-                
+
                 GLOBAL.resetGraph();
                 var $canvasContainer = $('.canvas-container')
                 $canvasContainer.width(GLOBAL.options.width);
@@ -163,6 +170,16 @@ $(function () {
     });
 
     function setInfo(data) {
+        $('#code-Length').text("Length: " + data.List.length)
+        $('#node-Length').text("Dinucleotide Nodes: " + data.DinucleotideNodes.length)
+
+
+        if (data.MaxPath === 0) {
+            $('#path-info').text("-")
+        } else {
+            $('#path-info').text("Max path length: (" + data.MaxPath + ")")
+        }
+        
         if (data.CyclingIndex === 0) {
             $('#cycling-info').text("Cycling-Code")
         } else {
@@ -170,24 +187,26 @@ $(function () {
         }
 
         if (data.SelfComplementary) {
-            $('#complementary-info').text("Self-complementary")
+            $('#complementary-info').text("Self-complementary");
         } else if (data.StrongNotSelfComplementary) {
-            $('#complementary-info').text("Strong not self-complementary")
+            $('#complementary-info').text("Strong not self-complementary");
         } else {
-            $('#complementary-info').text("")
+            $('#complementary-info').text("");
         }
 
         if (data.PropertyOne) {
-            $('#pone-info').text("Graph has property I")
+            $('#pone-info').text("Graph has property I");
         } else {
-            $('#pone-info').text("")
+            $('#pone-info').text("");
         }
 
         if (data.PropertyTwo) {
-            $('#ptow-info').text("Graph has property II")
+            $('#ptow-info').text("Graph has property II");
         } else {
-            $('#ptow-info').text("")
+            $('#ptow-info').text("");
         }
+
+        $('#full-cycling-info').text("");
     }
 
     function codonClick($this, isLocal) {
@@ -202,7 +221,7 @@ $(function () {
         var classes = classText[0].split(' ');
         for (var i = 0; i < classes.length; ++i) {
             if (classes[i].indexOf('class') === 0) {
-                $('.' + classes[i] + ':not(no)').addClass('no')
+                $('.' + classes[i] + ':not(no)').addClass('no');
             }
         }
         var classIndex = 0;
@@ -238,6 +257,20 @@ $(function () {
         })
     });
 
+    $('#button-shift').click(function () {
+        sendShiftLeft(function (data) {
+            $('#header-codon-list').text("");
+            $('.info-container p').text("");
+            GLOBAL.resetGraph();
+            resteTable();
+            if (data !== "Error") {
+                for (var i = 0; i < data.List.length; ++i) {
+                    codonClick($('.' + data.List[i]), true);
+                }
+            }
+        });
+    });
+
     function totalReset() {
         $.post("/reset", {}, function (data) {
             if (data !== 'Error') {
@@ -265,7 +298,7 @@ $(function () {
         });
     }
 
-    $('#undo-list').click(totalUndo);
+    // $('#undo-list').click(totalUndo);
 
     function resteTable() {
         history = [];

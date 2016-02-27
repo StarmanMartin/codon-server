@@ -102,6 +102,7 @@ type CodonGraph struct {
 	PropertyOne                bool
 	PropertyTwo                bool
 	Nucleotide                 []string
+	MaxPath                    int
 }
 
 // OrderNodes orders the list of dinucleotide and nucleotide
