@@ -307,7 +307,7 @@ $(function () {
     }
 
     $('#send-list').click(function () {
-        var value = $('#codonList').val().toUpperCase();
+        var value = $('#codonList').val().toUpperCase().replace(/,/g, ' ').replace(/ {2}/g, ' ');
         $('#header-codon-list').text("");
         GLOBAL.resetGraph();
         resteTable();

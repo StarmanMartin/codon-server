@@ -3,19 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/starmanmartin/simple-router"
+	"github.com/starmanmartin/codon-resarch/ctools"
+    
 )
-
-var (
-	totla *regexp.Regexp
-)
-
-func init() {
-	totla = regexp.MustCompile(`([AUGC]{3})`)
-}
 
 func initRouter() {
 	sub := router.NewSubRouter("/check")
@@ -37,8 +30,7 @@ func handleTool(w http.ResponseWriter, r *router.Request) (isNext bool, err erro
 
 	switch r.RouteParams["tool"] {
 	case "shift":
-		tempStringList := strings.Join(list, "") + string(list[0][0])
-		session.Values["clist"] = totla.ReplaceAllString(tempStringList[1:], "$1 ")
+		session.Values["clist"] = ctools.ShiftLeft(list)
 	    session.Save(r.Request, w)
     default:
 		w.Write([]byte("Error"))

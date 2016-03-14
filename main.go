@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/starmanmartin/simple-router"
 	"github.com/starmanmartin/simple-router/view"
+	"github.com/starmanmartin/codon-resarch"
+	"github.com/starmanmartin/codon-resarch/ctools"
 )
 
 var store = sessions.NewCookieStore([]byte("something-very-secret"))
@@ -21,8 +23,8 @@ func resetHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err er
 	delete(session.Values, "clist")
 	session.Save(r.Request, w)
 	w.Write([]byte("sucess"))
-	return false, nil
-
+    
+    return false, nil
 }
 
 func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
@@ -38,8 +40,8 @@ func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool
 	sOldList := fmt.Sprint(oldList)
 	sOldList = strings.Trim(sOldList, " ")
 	list := strings.Split(sOldList, " ")
-
-	list, err = PermutateCodons(list, rule)
+    
+	list, err = ctools.PermutateCodons(list, rule)
 	if err != nil {
 		w.Write([]byte("Error"))
 		return false, nil
@@ -60,6 +62,7 @@ func uploadNewListHandler(w http.ResponseWriter, r *router.Request) (isNext bool
 
 func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
 	r.ParseForm()
+    
 	session, _ := store.Get(r.Request, "session-name")
 	codon := r.Form.Get("list")
 	oldList, has := session.Values["clist"]
@@ -89,7 +92,7 @@ func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 		}
 	}
 
-	graph, err := NewCodonGraph(list)
+	graph, err := resarch.NewCodonGraph(list)
 
 	if err != nil {
 		w.Write([]byte("Error"))
@@ -131,7 +134,7 @@ func removeHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 		return false, nil
 	}
 
-	graph, err := NewCodonGraph(list)
+	graph, err := resarch.NewCodonGraph(list)
 
 	if err != nil {
 		w.Write([]byte("Error"))
