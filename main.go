@@ -5,101 +5,88 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
-
-	"github.com/gorilla/sessions"
-	"github.com/starmanmartin/simple-router"
-	"github.com/starmanmartin/simple-router/view"
+    "errors"
 	"github.com/starmanmartin/codon-resarch"
 	"github.com/starmanmartin/codon-resarch/ctools"
+	"github.com/starmanmartin/goconfig"
+	"github.com/starmanmartin/simple-router"
+	"github.com/starmanmartin/simple-router/view"
 )
-
-var store = sessions.NewCookieStore([]byte("something-very-secret"))
 
 var indexTmpl, errTmpl *template.Template
 
 func resetHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
-	session, _ := store.Get(r.Request, "session-name")
-	delete(session.Values, "clist")
-	session.Save(r.Request, w)
+	removeList(r.Request, w)
 	w.Write([]byte("sucess"))
-    
-    return false, nil
+
+	return false, nil
 }
 
 func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
 	r.ParseForm()
-	session, _ := store.Get(r.Request, "session-name")
-	rule := r.Form.Get("rule")
-	oldList, has := session.Values["clist"]
-	if !has {
-		w.Write([]byte("Error"))
-		return false, nil
+   
+	list, err := loadArrayList(r.Request)
+	if err != nil {
+		return false, err
 	}
-
-	sOldList := fmt.Sprint(oldList)
-	sOldList = strings.Trim(sOldList, " ")
-	list := strings.Split(sOldList, " ")
     
+    
+	rule := r.Form.Get("rule")
 	list, err = ctools.PermutateCodons(list, rule)
 	if err != nil {
-		w.Write([]byte("Error"))
-		return false, nil
+		return false, err
 	}
 
-	session.Values["clist"] = strings.Join(list, " ")
-	session.Save(r.Request, w)
+	saveAsArrayList(r.Request, w, list)
 
 	return true, nil
 }
 
 func uploadNewListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
-	session, _ := store.Get(r.Request, "session-name")
-	delete(session.Values, "clist")
-	session.Save(r.Request, w)
-	return true, nil
+	err = removeList(r.Request, w)
+	return true, err
 }
 
 func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
-	r.ParseForm()
+    r.ParseForm()
     
-	session, _ := store.Get(r.Request, "session-name")
+    oldList, err := loadList(r.Request)
 	codon := r.Form.Get("list")
-	oldList, has := session.Values["clist"]
 	var list []string
-	if !has {
+	if err != nil {
 		if len(codon) <= 2 {
 			w.Write([]byte("Empty"))
 			return false, nil
 		}
 		list = strings.Split(codon, " ")
-		session.Values["clist"] = codon
 	} else {
 		sOldList := fmt.Sprint(oldList)
 		sOldList = strings.Trim(sOldList, " ")
 
 		list = strings.Split(sOldList, " ")
 		if len(codon) > 0 {
-			if _, has = indexOf(list, codon); !has {
-				w.Write([]byte("Error"))
-				return false, nil
+			if _, has := indexOf(list, codon); !has {
+				return false, errors.New("codon dublicated")
 			}
 
 			list = append(list, codon)
 			codon = fmt.Sprintf("%s %s", oldList, codon)
 			codon = strings.Trim(codon, " ")
-			session.Values["clist"] = codon
-		}
+		} else {
+            codon = sOldList
+        }
 	}
 
 	graph, err := resarch.NewCodonGraph(list)
 
 	if err != nil {
-		w.Write([]byte("Error"))
-		return false, nil
+		return false, err
 	}
 
-	session.Save(r.Request, w)
+	saveList(r.Request, w, codon)
 	graph.OrderNodes()
 	graph.FindIfCircular()
 	graph.IsSelfComplementary()
@@ -112,36 +99,32 @@ func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 
 func removeHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
 	r.ParseForm()
-	session, _ := store.Get(r.Request, "session-name")
-	codon := r.Form.Get("list")
-	oldList, has := session.Values["clist"]
-	var list []string
-	if !has {
-		w.Write([]byte("Error"))
-		return false, nil
+    
+	oldList, err := loadList(r.Request)
+	if err != nil {
+		return false, err
 	}
 
+
+	codon := r.Form.Get("list")
 	sOldList := fmt.Sprint(oldList)
 
 	if len(codon) == 3 {
 		codon = strings.Replace(sOldList, codon, "", -1)
 		codon = strings.Trim(codon, " ")
 		codon = strings.Replace(codon, "  ", " ", -1)
-		list = strings.Split(codon, " ")
-		session.Values["clist"] = codon
 	} else {
-		w.Write([]byte("Error"))
-		return false, nil
+		return false, errors.New("No codon")
 	}
 
+	list := strings.Split(codon, " ")
 	graph, err := resarch.NewCodonGraph(list)
 
 	if err != nil {
-		w.Write([]byte("Error"))
-		return false, nil
+		return false, err
 	}
 
-	session.Save(r.Request, w)
+	saveList(r.Request, w, codon)
 	graph.OrderNodes()
 	graph.FindIfCircular()
 	graph.IsSelfComplementary()
@@ -165,25 +148,46 @@ func notFound(w http.ResponseWriter, r *router.Request) {
 	errTmpl.ExecuteTemplate(w, "base", "404")
 }
 
+func errorFuncXHR(err error, w http.ResponseWriter, r *router.Request) {
+	w.Write([]byte("Error"))
+}
+
+func notFoundXHR(w http.ResponseWriter, r *router.Request) {
+	w.Write([]byte("Error"))
+}
+
+
 func iniWebRouter() {
+	cwd, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err := goconfig.InitConficOnce(cwd+"/config/config.json", cwd+"/config/param.json"); err != nil {
+		panic(err)
+		return
+	}
+    
 	app := router.NewRouter()
 	app.Public("/public")
 	app.Get("/", indexHandler)
+    
+    app = router.NewXHRRouter()
 	app.Post("/newgraph", uploadHandler)
 	app.Post("/removecodon", removeHandler)
 	app.Post("/reset", resetHandler)
 	app.Post("/newlist", uploadNewListHandler, uploadHandler)
 	app.Post("/permutate", permutateListHandler, uploadHandler)
+	
     initRouter()
-    app.Post("/check/*", uploadHandler)
-	router.ErrorHandler = errorFunc
+	app.Post("/check/*", uploadHandler)
+	
+    router.ErrorHandler = errorFunc
 	router.NotFoundHandler = notFound
+    router.XHRErrorHandler = errorFuncXHR
+	router.XHRNotFoundHandler = notFoundXHR
 
 	view.ViewPath = "views"
 	indexTmpl = view.ParseTemplate("index", "index.html")
 	errTmpl = view.ParseTemplate("error", "error.html")
-
-	http.ListenAndServe(":8080", app)
+	port, _ := goconfig.GetString("port")
+	http.ListenAndServe(":"+port, app)
 }
 
 func main() {

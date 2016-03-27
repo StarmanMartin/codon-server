@@ -1,5 +1,5 @@
 /* global GLOBAL */
-$(function () {
+$(function() {
     var history = [];
 
     function parseObject(data, w, h) {
@@ -105,8 +105,25 @@ $(function () {
         sendListUpdate("/check/shift", {}, cb)
     }
 
+    function sendShiftCodonLeft(cb) {
+        sendListUpdate("/check/shiftcodon", {}, cb)
+    }
+
+    function sendFillComplements(cb) {
+        sendListUpdate("/check/fill_comp", {}, cb)
+    }
+
+    function sendRemoveComlements(cb) {
+        sendListUpdate("/check/remove_comp", {}, cb)
+    }
+
+    function sendShuffle(cb) {
+        sendListUpdate("/check/shuffle", {}, cb)
+    }
+
+
     function sendListUpdate(path, val, cb) {
-        $.post(path, val, function (data) {
+        $.post(path, val, function(data) {
             if (data === 'Error') {
                 if (cb) {
                     cb(data)
@@ -124,7 +141,7 @@ $(function () {
                 nodeInfo = true;
                 data = JSON.parse(data);
                 console.log(data);
-                resetData = function () {
+                resetData = function() {
                     nodeInfo = parseObject(data, GLOBAL.options.width, GLOBAL.options.height);
                     resizeHeight = Math.max((nodeInfo[1] - 4 - GLOBAL.options.radius) * 2, 0)
                     if (cb) {
@@ -136,7 +153,7 @@ $(function () {
                 }
             }
 
-            GLOBAL.redraw = function () {
+            GLOBAL.redraw = function() {
                 if (nodeInfo) {
                     resetData()
                 }
@@ -163,9 +180,11 @@ $(function () {
         });
     }
 
-    sendNewCodon('', function (data) {
-        for (var i = 0; i < data.List.length; ++i) {
-            codonClick($('.' + data.List[i]), true);
+    sendNewCodon('', function(data) {
+        if (data !== "Error") {
+            for (var i = 0; i < data.List.length; ++i) {
+                codonClick($('.' + data.List[i]), true);
+            }
         }
     });
 
@@ -179,7 +198,7 @@ $(function () {
         } else {
             $('#path-info').text("Max path length: (" + data.MaxPath + ")")
         }
-        
+
         if (data.CyclingIndex === 0) {
             $('#cycling-info').text("Cycling-Code")
         } else {
@@ -206,6 +225,13 @@ $(function () {
             $('#ptow-info').text("");
         }
 
+        var list = $('.info-container #node-conn');
+        list.empty();
+
+        for (var i = 0; i < data.NucleotideConnections.length; i++) {
+            list.append($('<li>').text(data.NucleotideConnections[i]));
+        }
+
         $('#full-cycling-info').text("");
     }
 
@@ -214,7 +240,7 @@ $(function () {
         var val = $this.text();
         history.push(val);
         var classText = [];
-        $this.each(function () {
+        $this.each(function() {
             classText.push($(this).attr('class'))
         });
 
@@ -225,7 +251,7 @@ $(function () {
             }
         }
         var classIndex = 0;
-        $this.each(function () {
+        $this.each(function() {
             $(this).attr('class', classText[classIndex++]);
         });
 
@@ -235,7 +261,7 @@ $(function () {
         }
     }
 
-    $('.codon-table td').click(function () {
+    $('.codon-table td').click(function() {
         var $this = $(this);
         if ($this.hasClass('selected')) {
             history[history.length - 1] = $this.text();
@@ -245,38 +271,49 @@ $(function () {
         }
     });
 
-    $('#button-permutation-rule').click(function () {
+    function reseveDataAndReset(data) {
         $('#header-codon-list').text("");
         $('.info-container p').text("");
         GLOBAL.resetGraph();
         resteTable();
-        sendPermutation($('#select-permutation-rule').val(), function (data) {
+        if (data !== "Error") {
             for (var i = 0; i < data.List.length; ++i) {
                 codonClick($('.' + data.List[i]), true);
             }
-        })
+        }
+    }
+
+    $('#button-permutation-rule').click(function() {
+        sendPermutation($('#select-permutation-rule').val(), reseveDataAndReset)
     });
 
-    $('#button-shift').click(function () {
-        sendShiftLeft(function (data) {
-            $('#header-codon-list').text("");
-            $('.info-container p').text("");
-            GLOBAL.resetGraph();
-            resteTable();
-            if (data !== "Error") {
-                for (var i = 0; i < data.List.length; ++i) {
-                    codonClick($('.' + data.List[i]), true);
-                }
-            }
-        });
+    $('#button-shift').click(function() {
+        sendShiftLeft(reseveDataAndReset);
+    });
+
+    $('#button-shift-codons').click(function() {
+        sendShiftCodonLeft(reseveDataAndReset);
+    });
+
+    $('#button-fill-complement').click(function() {
+        sendFillComplements(reseveDataAndReset);
+    });
+
+    $('#button-remove-complement').click(function() {
+        sendRemoveComlements(reseveDataAndReset);
+    });
+
+    $('#button-shuffle').click(function() {
+        sendShuffle(reseveDataAndReset);
     });
 
     function totalReset() {
-        $.post("/reset", {}, function (data) {
+        $.post("/reset", {}, function(data) {
             if (data !== 'Error') {
                 $('#header-codon-list').text("");
                 GLOBAL.resetGraph();
                 resteTable();
+                $('.info-container ol').empty();
                 $('.info-container p').text("");
             }
         });
@@ -290,7 +327,7 @@ $(function () {
             return;
         }
 
-        sendRemoveCodon(history.pop(), function (data) {
+        sendRemoveCodon(history.pop(), function(data) {
             resteTable();
             for (var i = 0; i < data.List.length; ++i) {
                 codonClick($('.' + data.List[i]), true);
@@ -306,13 +343,14 @@ $(function () {
         $('.codon-table td.selected').removeClass('selected')
     }
 
-    $('#send-list').click(function () {
+    $('#send-list').click(function() {
         var value = $('#codonList').val().toUpperCase().replace(/,/g, ' ').replace(/ {2}/g, ' ');
         $('#header-codon-list').text("");
         GLOBAL.resetGraph();
         resteTable();
         $('.info-container p').text("");
-        sendNewList(value, function (data) {
+        $('.info-container ol').empty();
+        sendNewList(value, function(data) {
             for (var i = 0; i < data.List.length; ++i) {
                 codonClick($('.' + data.List[i]), true);
             }

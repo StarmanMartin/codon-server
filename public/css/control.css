@@ -34,7 +34,7 @@
     height: 100%
 }
 
-.sw-scroll-container .sw-box {
+.sw-scroll-container .sw-box, .sw-scroll-container .sw-box-single {
     position: absolute;
     bottom: 0px;
     overflow: auto;
@@ -43,12 +43,12 @@
     left: 15px;
 }
 
-.sw-scroll-container .sw-box.sw-box-scroll {
+.sw-scroll-container .sw-box.sw-box-scroll, .sw-scroll-container .sw-box-single.sw-box-scroll {
     
     right: 0px;
 }
 
-.sw-scroll-container .sw-box .row {
+.sw-scroll-container .sw-box .row, .sw-scroll-container .sw-box-single .row {
     margin: 0;
     margin-bottom: 4px; 
     width: 100%;

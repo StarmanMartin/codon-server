@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/starmanmartin/simple-router"
 	"github.com/starmanmartin/codon-resarch/ctools"
-    
+	"github.com/starmanmartin/simple-router"
 )
 
 func initRouter() {
@@ -17,22 +14,26 @@ func initRouter() {
 
 func handleTool(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
 	r.ParseForm()
-	session, _ := store.Get(r.Request, "session-name")
-	oldList, has := session.Values["clist"]
-	if !has {
+	
+    list, err := loadArrayList(r.Request)
+	if err != nil {
 		w.Write([]byte("Error"))
 		return false, nil
 	}
 
-	sOldList := fmt.Sprint(oldList)
-	sOldList = strings.Trim(sOldList, " ")
-	list := strings.Split(sOldList, " ")
 
 	switch r.RouteParams["tool"] {
 	case "shift":
-		session.Values["clist"] = ctools.ShiftLeft(list)
-	    session.Save(r.Request, w)
-    default:
+        saveList(r.Request, w, ctools.ShiftLeft(list))
+	case "shiftcodon":
+        saveList(r.Request, w, ctools.ShiftCodonLeft(list))
+	case "fill_comp":
+        saveList(r.Request, w, ctools.FillComlements(list))
+	case "remove_comp":
+        saveList(r.Request, w, ctools.RemoveComlements(list))
+    case "shuffle":
+        saveList(r.Request, w, ctools.Shuffle(list))
+	default:
 		w.Write([]byte("Error"))
 	}
 
