@@ -2,9 +2,9 @@ package main
 
 import (
 	"net/http"
-
 	"github.com/starmanmartin/codon-resarch/ctools"
 	"github.com/starmanmartin/simple-router"
+	"github.com/starmanmartin/simple-router/request"
 )
 
 func initRouter() {
@@ -12,7 +12,7 @@ func initRouter() {
 	sub.Post("/:tool", handleTool)
 }
 
-func handleTool(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+func handleTool(w http.ResponseWriter, r *request.Request) (isNext bool, err error) {
 	r.ParseForm()
 	
     list, err := loadArrayList(r.Request)
@@ -31,6 +31,8 @@ func handleTool(w http.ResponseWriter, r *router.Request) (isNext bool, err erro
         saveList(r.Request, w, ctools.FillComlements(list))
 	case "remove_comp":
         saveList(r.Request, w, ctools.RemoveComlements(list))
+	case "removegu":
+	saveList(r.Request, w, ctools.RemoveGU(list))
     case "shuffle":
         saveList(r.Request, w, ctools.Shuffle(list))
 	default:

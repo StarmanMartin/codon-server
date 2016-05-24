@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"html/template"
 	"net/http"
 	"os"
@@ -14,18 +15,19 @@ import (
 	"github.com/starmanmartin/goconfig"
 	"github.com/starmanmartin/simple-router"
 	"github.com/starmanmartin/simple-router/view"
+	"github.com/starmanmartin/simple-router/request"
 )
 
 var indexTmpl, errTmpl *template.Template
 
-func resetHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+func resetHandler(w http.ResponseWriter, r *request.Request) (isNext bool, err error) {
 	removeList(r.Request, w)
 	w.Write([]byte("sucess"))
 
 	return false, nil
 }
 
-func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+func permutateListHandler(w http.ResponseWriter, r *request.Request) (isNext bool, err error) {
 	r.ParseForm()
    
 	list, err := loadArrayList(r.Request)
@@ -45,12 +47,12 @@ func permutateListHandler(w http.ResponseWriter, r *router.Request) (isNext bool
 	return true, nil
 }
 
-func uploadNewListHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+func uploadNewListHandler(w http.ResponseWriter, r *request.Request) (isNext bool, err error) {
 	err = removeList(r.Request, w)
 	return true, err
 }
 
-func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+func uploadHandler(w http.ResponseWriter, r *request.Request) (isNext bool, err error) {
     r.ParseForm()
     
     oldList, err := loadList(r.Request)
@@ -97,7 +99,7 @@ func uploadHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 	return false, nil
 }
 
-func removeHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+func removeHandler(w http.ResponseWriter, r *request.Request) (isNext bool, err error) {
 	r.ParseForm()
     
 	oldList, err := loadList(r.Request)
@@ -135,24 +137,24 @@ func removeHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err e
 	return false, nil
 }
 
-func indexHandler(w http.ResponseWriter, r *router.Request) (isNext bool, err error) {
+func indexHandler(w http.ResponseWriter, r *request.Request) (isNext bool, err error) {
 	indexTmpl.ExecuteTemplate(w, "base", "")
 	return
 }
 
-func errorFunc(err error, w http.ResponseWriter, r *router.Request) {
+func errorFunc(err error, w http.ResponseWriter, r *request.Request) {
 	errTmpl.ExecuteTemplate(w, "base", err)
 }
 
-func notFound(w http.ResponseWriter, r *router.Request) {
+func notFound(w http.ResponseWriter, r *request.Request) {
 	errTmpl.ExecuteTemplate(w, "base", "404")
 }
 
-func errorFuncXHR(err error, w http.ResponseWriter, r *router.Request) {
+func errorFuncXHR(err error, w http.ResponseWriter, r *request.Request) {
 	w.Write([]byte("Error"))
 }
 
-func notFoundXHR(w http.ResponseWriter, r *router.Request) {
+func notFoundXHR(w http.ResponseWriter, r *request.Request) {
 	w.Write([]byte("Error"))
 }
 
@@ -187,7 +189,10 @@ func iniWebRouter() {
 	indexTmpl = view.ParseTemplate("index", "index.html")
 	errTmpl = view.ParseTemplate("error", "error.html")
 	port, _ := goconfig.GetString("port")
+	log.Println("Listening on port:" , port)
 	http.ListenAndServe(":"+port, app)
+	
+	
 }
 
 func main() {

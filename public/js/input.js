@@ -120,6 +120,10 @@ $(function() {
     function sendShuffle(cb) {
         sendListUpdate("/check/shuffle", {}, cb)
     }
+    
+     function sendRemoveGU(cb) {
+        sendListUpdate("/check/removegu", {}, cb)
+    }
 
 
     function sendListUpdate(path, val, cb) {
@@ -294,6 +298,10 @@ $(function() {
     $('#button-shift-codons').click(function() {
         sendShiftCodonLeft(reseveDataAndReset);
     });
+    
+    $('#button-remove-GU-codons').click(function() {
+        sendRemoveGU(reseveDataAndReset);
+    });
 
     $('#button-fill-complement').click(function() {
         sendFillComplements(reseveDataAndReset);
@@ -344,7 +352,7 @@ $(function() {
     }
 
     $('#send-list').click(function() {
-        var value = $('#codonList').val().toUpperCase().replace(/,/g, ' ').replace(/ {2}/g, ' ');
+        var value = $('#codonList').val().toUpperCase().replace(/,/g, ' ').replace(/ {2}/g, ' ').replace(/T/g, "U");
         $('#header-codon-list').text("");
         GLOBAL.resetGraph();
         resteTable();
@@ -355,6 +363,5 @@ $(function() {
                 codonClick($('.' + data.List[i]), true);
             }
         });
-
     });
 });
