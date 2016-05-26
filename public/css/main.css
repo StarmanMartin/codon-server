@@ -44,3 +44,7 @@ footer {
     height: 15px;
     margin-top: -3px; 
 }
+
+.sw-box-scroll > .row {
+    padding: 0 5px;
+}

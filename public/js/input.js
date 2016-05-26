@@ -1,4 +1,5 @@
 /* global GLOBAL */
+
 $(function() {
     var history = [];
 
@@ -98,6 +99,12 @@ $(function() {
     function sendPermutation(val, cb) {
         sendListUpdate("/permutate", {
             "rule": val
+        }, cb)
+    }
+    
+    function sendselectRepresenter(val, cb) {
+    	sendListUpdate("/check/representer", {
+            "index": val
         }, cb)
     }
 
@@ -240,7 +247,7 @@ $(function() {
     }
 
     function codonClick($this, isLocal) {
-        $this.addClass('selected')
+    	$this.addClass('selected')
         var val = $this.text();
         history.push(val);
         var classText = [];
@@ -314,8 +321,15 @@ $(function() {
     $('#button-shuffle').click(function() {
         sendShuffle(reseveDataAndReset);
     });
+    
+    $('#button-select-representer').click(function() {
+        sendselectRepresenter($('#input-select-representer').val(), reseveDataAndReset);
+    });
 
     function totalReset() {
+    	if(!lock()) {
+    		return
+    	}
         $.post("/reset", {}, function(data) {
             if (data !== 'Error') {
                 $('#header-codon-list').text("");
@@ -324,6 +338,8 @@ $(function() {
                 $('.info-container ol').empty();
                 $('.info-container p').text("");
             }
+            
+            unlock()
         });
     }
 
@@ -364,4 +380,18 @@ $(function() {
             }
         });
     });
+    
+    var isInAction = false;
+    function lock() {
+    	if(isInAction) {
+    		return false;
+    	}
+    	
+    	return isInAction = true;
+    }
+    
+    function unlock() {
+    	isInAction = false;
+    	return true;
+    }
 });

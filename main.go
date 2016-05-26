@@ -12,6 +12,7 @@ import (
     "errors"
 	"github.com/starmanmartin/codon-resarch"
 	"github.com/starmanmartin/codon-resarch/ctools"
+	"github.com/starmanmartin/codon-resarch/cThree"
 	"github.com/starmanmartin/goconfig"
 	"github.com/starmanmartin/simple-router"
 	"github.com/starmanmartin/simple-router/view"
@@ -190,6 +191,8 @@ func iniWebRouter() {
 	errTmpl = view.ParseTemplate("error", "error.html")
 	port, _ := goconfig.GetString("port")
 	log.Println("Listening on port:" , port)
+	log.Println(cThree.GetSingleSwitchPath())
+	
 	http.ListenAndServe(":"+port, app)
 	
 	
